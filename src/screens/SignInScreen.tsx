@@ -14,7 +14,7 @@ export default function SignInScreen() {
             Sign in to TableMade
           </Text>
           <Text>Email, Apple, and GitHub sign-in live here.</Text>
-          <Link to={{ screen: "Onboarding" }}>Home</Link>
+          <Link to={{ screen: "Onboarding" }}>Sign In</Link>
         </ScrollView>
       </AppSafeArea>
     );

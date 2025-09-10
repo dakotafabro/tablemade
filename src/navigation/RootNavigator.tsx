@@ -1,103 +1,39 @@
+// src/navigation/RootNavigator.tsx
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { useSelector } from "react-redux";
+import type { RootState } from "../redux/store";
 
-// Pantry stack screens
-import PantryScreen from "../screens/PantryScreen";
-import GenerateScreen from "../screens/GenerateScreen";
-import RecipeDetailScreen from "../screens/RecipeDetailScreen";
-import CookModeScreen from "../screens/CookModeScreen";
-
-// Other top-level tab screens
-import FavoritesScreen from "../screens/FavoritesScreen";
-import GroceryListScreen from "../screens/GroceryListScreen";
-import SettingsScreen from "../screens/SettingsScreen";
-
-// Auth/onboarding
 import SignInScreen from "../screens/SignInScreen";
 import OnboardingScreen from "../screens/OnboardingScreen";
+import { TabsNavigator } from "./TabsNavigator";
 
-export type PantryStackParamList = {
-  PantryHome: undefined;
-  Generate: undefined;
-  RecipeDetail: { recipeId: string };
-  CookMode: { recipeId: string };
-};
-
-export type TabsParamList = {
-  PantryStack: undefined;
-  Favorites: undefined;
-  Groceries: undefined;
-  Settings: undefined;
-};
-
+// Route types for this stack
 export type RootStackParamList = {
   SignIn: undefined;
   Onboarding: undefined;
   Tabs: undefined;
 };
 
+// ✅ make sure we CALL the factory:
 const RootStack = createNativeStackNavigator<RootStackParamList>();
-const PantryStack = createNativeStackNavigator<PantryStackParamList>();
-const Tabs = createBottomTabNavigator<TabsParamList>();
 
-function PantryStackNavigator() {
-  return (
-    <PantryStack.Navigator screenOptions={{ headerShown: false }}>
-      <PantryStack.Screen name="PantryHome" component={PantryScreen} />
-      <PantryStack.Screen name="Generate" component={GenerateScreen} />
-      <PantryStack.Screen name="RecipeDetail" component={RecipeDetailScreen} />
-      <PantryStack.Screen name="CookMode" component={CookModeScreen} />
-    </PantryStack.Navigator>
-  );
-}
-
-function TabsNavigator() {
-  return (
-    <Tabs.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarLabelStyle: { fontSize: 12 },
-      }}
-    >
-      <Tabs.Screen
-        name="PantryStack"
-        component={PantryStackNavigator}
-        options={{ tabBarLabel: "Pantry" }}
-      />
-      <Tabs.Screen
-        name="Grocery"
-        component={GroceryListScreen}
-        options={{ tabBarLabel: "Groceries" }}
-      />
-      <Tabs.Screen
-        name="Favorites"
-        component={FavoritesScreen}
-        options={{ tabBarLabel: "Favorites" }}
-      />
-      <Tabs.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={{ tabBarLabel: "Settings" }}
-      />
-    </Tabs.Navigator>
-  );
-}
-
-export const RootNavigator = () => {
-  // Replace this with your auth/onboarding gating logic:
-  const isSignedIn = true; // <- wire to Redux/state later
-  const isOnboarded = true;
+export function RootNavigator() {
+  // state-driven auth + onboarding
+  const user = useSelector((s: RootState) => s.auth.user);
+  const onboarded = useSelector((s: RootState) => s.profile.onboarded ?? false);
 
   return (
     <RootStack.Navigator screenOptions={{ headerShown: false }}>
-      {!isSignedIn ? (
+      {!user ? (
         <RootStack.Screen name="SignIn" component={SignInScreen} />
-      ) : !isOnboarded ? (
+      ) : !onboarded ? (
         <RootStack.Screen name="Onboarding" component={OnboardingScreen} />
       ) : (
         <RootStack.Screen name="Tabs" component={TabsNavigator} />
       )}
     </RootStack.Navigator>
   );
-};
+}
+
+export default RootNavigator;
